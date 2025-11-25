@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="/images/Capture.PNG">
+  <title>SmartHydra</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #2f80ed, #56ccf2);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      width: 100%;
+      padding: 10px;
+      backdrop-filter: blur(6px);
+    }
+
+    header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 8px 16px;
+      transition: 0.3s;
+    }
+
+    header button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+    }
+
+    section {
+      display: none;
+      width: 90%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 30px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    section.active {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: #000;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      background-color: #1b6cf2;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background-color: #155edb;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background-color: rgba(255,255,255,0.4);
+      border-radius: 10px;
+      overflow: hidden;
+      height: 22px;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #00ffcc;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .streak {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button onclick="showPage('page1')">Hydration Goal</button>
+    <button onclick="showPage('page3')">Streaks</button>
+  </header>
+
+  <!-- Page 1 -->
+  <section id="page1" class="active">
+    <h2>Personal Information</h2>
+    <input type="text" id="name" placeholder="Name" />
+    <input type="number" id="age" placeholder="Age" inputmode="numeric" />
+    <input type="number" id="height" placeholder="Height (cm)" inputmode="decimal" />
+    <input type="number" id="weight" placeholder="Weight (kg)" inputmode="decimal" />
+    <select id="condition">
+      <option value="">Disease status</option>
+      <option value="none">Normal</option>
+      <option value="kidney">Kidney Disease</option>
+      <option value="heart">Heart Disease</option>
+    </select>
+    <button onclick="calculateWater()">Calculate my Drinking goal</button>
+  </section>
+
+  <!-- Page 2 -->
+  <section id="page2">
+    <h2>Your Daily Goal</h2>
+    <p id="water-amount">0 ml</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    <button onclick="drinkWater(250)">Add 250ml</button>
+  </section>
+
+  <!-- Page 3 -->
+  <section id="page3">
+    <h2>Your Streak</h2>
+    <div class="streak" id="streak">🔥 0 days in a row</div>
+  </section>
+
+  <script>
+    let waterGoal = 0;
+    let currentWater = 0;
+    let streak = 0;
+
+    function showPage(id) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function calculateWater() {
+      const weight = parseFloat(document.getElementById("weight").value);
+      const age = parseInt(document.getElementById("age").value);
+      const condition = document.getElementById("condition").value;
+
+      if (isNaN(weight) || isNaN(age)) {
+        alert("Please fill in all information.");
+        return;
+      }
+
+      waterGoal = weight * 30;
+      if (condition === "kidney" || condition === "heart") waterGoal *= 0.9;
+
+      document.getElementById("water-amount").textContent = `${Math.round(waterGoal)} ml`;
+      showPage('page2');
+    }
+
+    function drinkWater(amount) {
+      currentWater += amount;
+      if (currentWater > waterGoal) currentWater = waterGoal;
+
+      const percent = (currentWater / waterGoal) * 100;
+      document.getElementById("progress").style.width = `${percent}%`;
+
+      if (currentWater === waterGoal) {
+        streak++;
+        document.getElementById("streak").textContent = `🔥 ${streak} days in a row`;
+        alert("Good job! You've met your goal today!");
+        currentWater = 0;
+        document.getElementById("progress").style.width = "0%";
+      }
+    }
+  </script>
+  <script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="yVs96jR_fcuJcmD8HvQXW";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+  </script>
+</body>
+</html>
